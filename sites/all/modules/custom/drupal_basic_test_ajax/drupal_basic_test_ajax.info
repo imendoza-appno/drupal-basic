@@ -1,0 +1,4 @@
+name = form_edit_form
+description = form_test
+core = 7.x
+package = Rootstack

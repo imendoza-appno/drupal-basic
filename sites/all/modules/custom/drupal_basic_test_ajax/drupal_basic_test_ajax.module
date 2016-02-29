@@ -1,0 +1,82 @@
+<?php
+/**
+ * @file
+ * Code for the Drupal basicform.
+ */
+
+function drupal_basic_test_ajax_menu() {
+  $items['formtest'] = array(
+    'title' => 'Form Test',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('form_test_form'),
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+function form_test_form($form,&$form_submit) {
+
+  $form['parent'] = array (
+    '#prefix' => '<div class="parent-form"><div>',
+    '#suffix' => '</div>'
+  );
+
+  $form['parent']['firstname'] = array(
+    '#title' => t('Firstname'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+  );
+  $form['parent']['lastname'] = array(
+    '#title' => t('Lastname'),
+    '#type' => 'textfield',
+  );
+  $form['parent']['submit'] = array(
+    '#value' => 'Submit',
+    '#type' => 'submit',
+  );
+
+
+  $form['remove_command_example_fieldset']['remove_command_example'] = array(
+    '#title' => t("AJAX"),
+    '#type' => 'checkbox',
+    '#default_value' => FALSE,
+    '#ajax' => array(
+      'callback' => 'ajax_example_advanced_commands_remove_callback',
+    ),
+    '#suffix' => "<div id='remove_div'><div id='remove_text'>text to be removed</div></div>",
+  );
+
+  return $form;
+}
+
+
+function ajax_example_advanced_commands_remove_callback($form, $form_state) {
+  $commands = array();
+  $should_remove = $form_state['values']['remove_command_example'];
+  $should_remove_string = $should_remove ? 'TRUE' : 'FALSE';
+  $milestone_form = drupal_get_form('milestone_form_edit', 3);
+
+  if ($should_remove) {
+    $commands[] = ajax_command_remove('#remove_text');
+  }
+  else {
+    $commands[] = ajax_command_html('#remove_div', "<div id='remove_text'>text to be removed 2</div>");
+  }
+//  $commands[] = ajax_command_replace("#remove_status", "<div id='remove_status'>Updated remove_command_example (value={$should_remove_string} " . date('r') . "</div>");
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Custom form for edit milestones.
+ */
+function milestone_form_edit($form, &$form_state, $vars) {
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject title'),
+    '#default_value' => 'sample',
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#required' => TRUE,
+  );
+  return $form;
+}
